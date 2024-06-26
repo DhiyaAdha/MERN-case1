@@ -1,8 +1,10 @@
 import express from "express";
 import fs from "fs";
+import cors from "cors";
 
 const app = express();
 const port = 3200;
+app.use(cors());
 
 // Fungsi untuk membaca file JSON dan mengembalikan data yang diparsing
 const getData = (filePath) => {
@@ -33,7 +35,19 @@ app.get("/product", (req, res) => {
   res.json(data);
 });
 app.get("/product/:id", (req, res) => {
-  res.send(req.params.id);
+    const id = parseInt(req.params.id);
+    const data = findData(id);
+    if (data) {
+        res.json(data);
+    } else {
+        res.status(404).json({ message: "Product not found" });
+    }
 });
+
+const findData = (id) => {
+    const dataProduct = getData("./data/Product.json");
+    const findProduct = dataProduct.find((data) => data.id === id);
+    return findProduct;
+}
 
 app.listen(port, () => console.log(`Server is running on port: ${port}`));
